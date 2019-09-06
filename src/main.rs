@@ -1,5 +1,6 @@
 // extern crate finrust; // not necessary
 use std::error::Error;
+use util;
 
 fn main()->Result<(), Box<dyn Error>> {
 
@@ -15,7 +16,9 @@ fn main()->Result<(), Box<dyn Error>> {
         z, tval::t_bill_r(150.0, 98_000., 100_000.)
         ,f64::ln(10.0)) ;
 
-    println!("{}", r);
+    println!("{}", r); 
+
+    println!("g_search => {:.3}", util::g_search(|x| x*2.0, 0.0, 0.0, 1.0e-9));
 
     Ok(())
 }
