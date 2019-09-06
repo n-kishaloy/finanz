@@ -18,7 +18,7 @@ fn main()->Result<(), Box<dyn Error>> {
 
     println!("{}", r); 
 
-    println!("g_search => {:.3}", util::g_search(|x| x*2.0, 0.0, 0.0, 1.0e-9));
+    println!("g_search => {:.5}", util::g_search(|x| x*2.0, 0.0, 0.0, 1.0e-9));
 
     Ok(())
 }
