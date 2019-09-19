@@ -1,7 +1,9 @@
 
 extern crate util;
-use util::{approx};
+extern crate ndarray;
 
+use util::{approx};
+use ndarray::{Array1, ArrayView1,array};
 
 pub fn t_mul(r:f64, n:f64)->f64 { (1.0 + r).powf(n) }
 pub fn t_mul_m(r:f64, n:f64, m:f64)->f64 { (1.0 + r/m).powf(n*m) }
@@ -42,65 +44,65 @@ pub fn fmt_m(fv:f64,r:f64,n:f64,m:f64)->f64 { fv*r/m/((1.+r/m).powf(n*m) - 1.) }
 pub fn eff_r(r:f64,m:f64)->f64 { (1. + r/m).powf(m) - 1. }
 pub fn eff_r_cont(r:f64)->f64 { f64::exp(r) - 1. }
 
-pub fn npv(mut r:f64,tim:&Vec<f64>,cf:&Vec<f64>,t0:f64)->f64 {
+pub fn npv(mut r:f64,tim:ArrayView1<f64>,cf:ArrayView1<f64>,t0:f64)->f64 {
     let mut sm = 0.0; r += 1.0;
     for i in 0..cf.len(){ sm += cf[i]/r.powf(tim[i]) }
     sm/r.powf(t0)
 }
 
-pub fn npv_n(mut r:f64,cf:&Vec<f64>,t0:f64)->f64 {
+pub fn npv_n(mut r:f64,cf:ArrayView1<f64>,t0:f64)->f64 {
     let mut sm = 0.0; r += 1.0;
     for i in 0..cf.len(){ sm += cf[i]/r.powf(i as f64) }
     sm/r.powf(t0)
 } 
 
-pub fn npv_t0(mut r:f64,tim:&Vec<f64>,cf:&Vec<f64>)->f64 {
+pub fn npv_t0(mut r:f64,tim:ArrayView1<f64>,cf:ArrayView1<f64>)->f64 {
     let mut sm = 0.0; r += 1.0;
     for i in 0..cf.len() { sm += cf[i]/r.powf(tim[i]) }
     sm
 }
 
-pub fn npv_n0(mut r:f64,cf:&Vec<f64>)->f64 {
+pub fn npv_n0(mut r:f64,cf:ArrayView1<f64>)->f64 {
     let mut sm = 0.0; r += 1.0;
     for i in 0..cf.len(){ sm += cf[i]/r.powf(i as f64) }
     sm
 } 
 
-pub fn npv_r(mut r:f64)->impl FnMut(&Vec<f64>,&Vec<f64>,f64)->f64 {
-    move |tim:&Vec<f64>,cf:&Vec<f64>,t0:f64| { 
+pub fn npv_r(mut r:f64)->impl FnMut(ArrayView1<f64>,ArrayView1<f64>,f64)->f64 {
+    move |tim:ArrayView1<f64>,cf:ArrayView1<f64>,t0:f64| { 
         let mut sm = 0.0; r += 1.0;
         for i in 0..cf.len(){ sm += cf[i]/r.powf(tim[i]) }
         sm/r.powf(t0)
     }
 }
 
-pub fn npv_r0(mut r:f64)->impl FnMut(&Vec<f64>,&Vec<f64>)->f64 {
-    move |tim:&Vec<f64>,cf:&Vec<f64>| { 
+pub fn npv_r0(mut r:f64)->impl FnMut(ArrayView1<f64>,ArrayView1<f64>)->f64 {
+    move |tim:ArrayView1<f64>,cf:ArrayView1<f64>| { 
         let mut sm = 0.0; r += 1.0;
         for i in 0..cf.len(){ sm += cf[i]/r.powf(tim[i]) }
         sm
     }
 }
 
-pub fn npv_rt(mut r:f64,t0:f64)->impl FnMut(&Vec<f64>,&Vec<f64>)->f64 {
-    move |tim:&Vec<f64>,cf:&Vec<f64>| { 
+pub fn npv_rt(mut r:f64,t0:f64)->impl FnMut(ArrayView1<f64>,ArrayView1<f64>)->f64 {
+    move |tim:ArrayView1<f64>,cf:ArrayView1<f64>| { 
         let mut sm = 0.0; r += 1.0;
         for i in 0..cf.len(){ sm += cf[i]/r.powf(tim[i]) }
         sm/r.powf(t0)
     }
 }
 
-pub fn irr(cf:&Vec<f64>)->Result<f64, &'static str> { 
-    util::roots::root_nwt(move |x| npv_n0(x,&cf), 0.0, 1e-6) 
+pub fn irr(cf:ArrayView1<f64>)->Result<f64, &'static str> { 
+    util::roots::root_nwt(move |x| npv_n0(x,cf), 0.0, 1e-6) 
 }
 
-pub fn twrr(bv:&Vec<f64>, b_inf:&Vec<f64>)->f64 {
+pub fn twrr(bv:ArrayView1<f64>, b_inf:ArrayView1<f64>)->f64 {
     let n = bv.len()-1; let mut r = 1.0;
     for i in 0..n { r *= bv[i+1]/(bv[i]+b_inf[i]); }
     r.powf(1.0/(n as f64)) - 1.0
 }
 
-pub fn twrr_n(n:f64, bv:&Vec<f64>, b_inf:&Vec<f64>)->f64 {
+pub fn twrr_n(n:f64, bv:ArrayView1<f64>, b_inf:ArrayView1<f64>)->f64 {
     let mut r = 1.0;
     for i in 0..bv.len()-1 { r *= bv[i+1]/(bv[i]+b_inf[i]); }
     r.powf(1.0/(n as f64)) - 1.0
@@ -181,38 +183,38 @@ pub fn sharpe_rf(rf:f64)->impl Fn(f64,f64)->f64 {
     use super::*; 
 
     #[test] fn npv_test() {
-        let tim = vec![0.25,6.25,3.5,4.5,1.25]; 
-        let cf = vec![-6.25,1.2,1.25,3.6,2.5];
-        assert!(npv(0.08,&tim,&cf,0.45) == 0.36962283798505946);
-        assert!(npv_r0(0.08)(&tim,&cf)==0.3826480347907877 );
+        let tim = array![0.25,6.25,3.5,4.5,1.25]; 
+        let cf = array![-6.25,1.2,1.25,3.6,2.5];
+        assert!(npv(0.08,tim.view(),cf.view(),0.45) == 0.36962283798505946);
+        assert!(npv_r0(0.08)(tim.view(),cf.view())==0.3826480347907877 );
     }
 
-    #[test] fn npv_n_test() {assert!(npv_n(0.05,&vec![1000.,2000.,4000.,5000.,6000.],1.45) == 14709.9233383357313869)}
+    #[test] fn npv_n_test() {assert!(npv_n(0.05,array![1000.,2000.,4000.,5000.,6000.].view(),1.45) == 14709.9233383357313869)}
 
-    #[test] fn npv_t0_test() {assert!(npv_t0(0.08,&vec![0.25,6.25,3.5,4.5,1.25],&vec![-6.25,1.2,1.25,3.6,2.5]) == 0.3826480347907877)}
+    #[test] fn npv_t0_test() {assert!(npv_t0(0.08,array![0.25,6.25,3.5,4.5,1.25].view(),array![-6.25,1.2,1.25,3.6,2.5].view()) == 0.3826480347907877)}
 
-    #[test] fn npv_n0_test() {assert!(approx(npv_n0(0.1,&vec![-2.,0.5,0.75,1.35]),0.08865514650638584726040,1e-9) )}
+    #[test] fn npv_n0_test() {assert!(approx(npv_n0(0.1,array![-2.,0.5,0.75,1.35].view()),0.08865514650638584726040,1e-9) )}
 
-    #[test] fn npv_r_test() {assert!(npv_r(0.08)(&vec![0.25,6.25,3.5,4.5,1.25],&vec![-6.25,1.2,1.25,3.6,2.5], 0.45)==0.36962283798505946 )}
+    #[test] fn npv_r_test() {assert!(npv_r(0.08)(array![0.25,6.25,3.5,4.5,1.25].view(),array![-6.25,1.2,1.25,3.6,2.5].view(), 0.45)==0.36962283798505946 )}
 
-    #[test] fn npv_r0_test() {assert!(npv_r0(0.08)(&vec![0.25,6.25,3.5,4.5,1.25],&vec![-6.25,1.2,1.25,3.6,2.5])==0.3826480347907877 )}
+    #[test] fn npv_r0_test() {assert!(npv_r0(0.08)(array![0.25,6.25,3.5,4.5,1.25].view(),array![-6.25,1.2,1.25,3.6,2.5].view())==0.3826480347907877 )}
 
-    #[test] fn npv_rt_test() {assert!(npv_rt(0.08, 0.45)(&vec![0.25,6.25,3.5,4.5,1.25],&vec![-6.25,1.2,1.25,3.6,2.5])==0.36962283798505946 )}
+    #[test] fn npv_rt_test() {assert!(npv_rt(0.08, 0.45)(array![0.25,6.25,3.5,4.5,1.25].view(),array![-6.25,1.2,1.25,3.6,2.5].view())==0.36962283798505946 )}
 
     #[test] fn irr_test() {
-        assert!(irr(&vec![-2.0, 0.5, 0.75, 1.35]) == 
+        assert!(irr(array![-2.0, 0.5, 0.75, 1.35].view()) == 
             Ok(0.12129650313094050840) );
         
-        assert!(irr(&vec![2.0, 0.5, 0.75, 1.35]) == 
+        assert!(irr(array![2.0, 0.5, 0.75, 1.35].view()) == 
             Err("No soln") );
     }
 
     #[test] fn twrr_test() {
-        assert!(twrr(&vec![4.,6.,5.775,6.72,5.508],&vec![1.,-0.5,0.225,-0.6]) == 0.06159232319186159)
+        assert!(twrr(array![4.,6.,5.775,6.72,5.508].view(),array![1.,-0.5,0.225,-0.6].view()) == 0.06159232319186159)
     }
 
     #[test] fn twrr_n_test() {
-        assert!(twrr_n(1.0, &vec![100., 112., 142.64],&vec![0.,20.]) == 0.21027878787878795)
+        assert!(twrr_n(1.0, array![100., 112., 142.64].view(),array![0.,20.].view()) == 0.21027878787878795)
     }
 }
 
