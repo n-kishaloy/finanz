@@ -45,50 +45,42 @@ pub fn eff_r(r:f64,m:f64)->f64 { (1. + r/m).powf(m) - 1. }
 pub fn eff_r_cont(r:f64)->f64 { f64::exp(r) - 1. }
 
 pub fn npv(mut r:f64,tim:ArrayView1<f64>,cf:ArrayView1<f64>,t0:f64)->f64 {
-    let mut sm = 0.0; r += 1.0;
-    for i in 0..cf.len(){ sm += cf[i]/r.powf(tim[i]) }
-    sm/r.powf(t0)
+    r += 1.0;
+    cf.iter().zip(tim).fold(0.0, |s, (c,&t)| s+c/r.powf(t)) / r.powf(t0)
 }
 
 pub fn npv_n(mut r:f64,cf:ArrayView1<f64>,t0:f64)->f64 {
-    let mut sm = 0.0; r += 1.0;
-    for i in 0..cf.len(){ sm += cf[i]/r.powf(i as f64) }
-    sm/r.powf(t0)
+    r += 1.0;
+    cf.iter().zip(0..).fold(0.0,|s,(c,i)| s + c/r.powi(i)) / r.powf(t0)
 } 
 
 pub fn npv_t0(mut r:f64,tim:ArrayView1<f64>,cf:ArrayView1<f64>)->f64 {
-    let mut sm = 0.0; r += 1.0;
-    for i in 0..cf.len() { sm += cf[i]/r.powf(tim[i]) }
-    sm
+    r += 1.0; cf.iter().zip(tim).fold(0.0, |s, (c,&t)| s+c/r.powf(t))
 }
 
 pub fn npv_n0(mut r:f64,cf:ArrayView1<f64>)->f64 {
-    let mut sm = 0.0; r += 1.0;
-    for i in 0..cf.len(){ sm += cf[i]/r.powf(i as f64) }
-    sm
+    r += 1.0; cf.iter().zip(0..).fold(0.0, |s, (c,i)| s+c/r.powi(i))
+
 } 
 
 pub fn npv_r(mut r:f64)->impl FnMut(ArrayView1<f64>,ArrayView1<f64>,f64)->f64 {
     move |tim:ArrayView1<f64>,cf:ArrayView1<f64>,t0:f64| { 
-        let mut sm = 0.0; r += 1.0;
-        for i in 0..cf.len(){ sm += cf[i]/r.powf(tim[i]) }
-        sm/r.powf(t0)
+        r += 1.0;
+        cf.iter().zip(&tim).fold(0.0,|s, (c,&t)| s+c/r.powf(t)) / r.powf(t0)
     }
 }
 
 pub fn npv_r0(mut r:f64)->impl FnMut(ArrayView1<f64>,ArrayView1<f64>)->f64 {
     move |tim:ArrayView1<f64>,cf:ArrayView1<f64>| { 
-        let mut sm = 0.0; r += 1.0;
-        for i in 0..cf.len(){ sm += cf[i]/r.powf(tim[i]) }
-        sm
+        r += 1.0;
+        cf.iter().zip(&tim).fold(0.0,|s, (c,&t)| s+c/r.powf(t)) 
     }
 }
 
 pub fn npv_rt(mut r:f64,t0:f64)->impl FnMut(ArrayView1<f64>,ArrayView1<f64>)->f64 {
     move |tim:ArrayView1<f64>,cf:ArrayView1<f64>| { 
-        let mut sm = 0.0; r += 1.0;
-        for i in 0..cf.len(){ sm += cf[i]/r.powf(tim[i]) }
-        sm/r.powf(t0)
+        r += 1.0;
+        cf.iter().zip(&tim).fold(0.0,|s, (c,&t)| s+c/r.powf(t)) / r.powf(t0)
     }
 }
 
@@ -189,7 +181,7 @@ pub fn sharpe_rf(rf:f64)->impl Fn(f64,f64)->f64 {
         assert!(npv_r0(0.08)(tim.view(),cf.view())==0.3826480347907877 );
     }
 
-    #[test] fn npv_n_test() {assert!(npv_n(0.05,array![1000.,2000.,4000.,5000.,6000.].view(),1.45) == 14709.9233383357313869)}
+    #[test] fn npv_n_test() {assert!(npv_n(0.05,array![1000.,2000.,4000.,5000.,6000.].view(),1.45) == 14709.923338335733)}
 
     #[test] fn npv_t0_test() {assert!(npv_t0(0.08,array![0.25,6.25,3.5,4.5,1.25].view(),array![-6.25,1.2,1.25,3.6,2.5].view()) == 0.3826480347907877)}
 
@@ -203,7 +195,7 @@ pub fn sharpe_rf(rf:f64)->impl Fn(f64,f64)->f64 {
 
     #[test] fn irr_test() {
         assert!(irr(array![-2.0, 0.5, 0.75, 1.35].view()) == 
-            Ok(0.12129650313094050840) );
+            Ok(0.12129650313094024) );
         
         assert!(irr(array![2.0, 0.5, 0.75, 1.35].view()) == 
             Err("No soln") );
