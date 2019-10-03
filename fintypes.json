@@ -1,0 +1,331 @@
+{
+    "connection": {
+
+        "balance_sheet" : {
+
+            "cl_current_assets"                 :   [
+                "cash"                     ,
+                "current_receivables"      ,
+                "current_loans"            ,
+                "current_advances"         ,
+                "other_current_assets"     ,
+                "current_investments_BV"   ,
+                "current_investments_MV"   
+            ]   ,
+
+            "cl_inventories"                    :   [
+                "raw_materials"            ,
+                "work_in_progress"         ,
+                "finished_goods"           
+            ]   ,
+
+            "cl_non_current_assets"             :   [
+                "account_receivables"      ,
+                "long_term_loans"          ,
+                "long_term_advances"       ,
+                "long_term_investments_BV" ,
+                "long_term_investments_MV" ,
+                "other_long_term_assets"   
+            ]   ,
+
+            "cl_tangible_assets"                :   [
+                "plant_property_equipment" ,
+                "accumulated_depreciation" ,
+                "leasing_rental_assset"    ,
+                "capital_WIP"              ,
+                "other_tangible_assets"    
+            ]   ,
+
+            "cl_intangible_assets"              :   [
+                "intangible_assets"            ,
+                "intangible_assets_development",
+                "accumulated_amortization"     
+            ]   ,
+
+            "cl_current_liabilities"            :   [
+                "current_payables"         ,
+                "current_borrowings"       ,
+                "current_notes_payable"    ,
+                "other_current_liabilities",
+                "interest_payable"         ,
+                "current_provisions"       ,
+                "current_tax_payables"     ,
+                "liabilities_sale_assets"  ,
+                "current_leases_liability" 
+            ]   ,
+
+            "cl_non_current_liabilities"        :   [
+                "account_payables"           ,
+                "long_term_borrowings"       ,
+                "bonds_payable"              ,
+                "deferred_tax_liabilities"   ,
+                "long_term_leases_liability" ,
+                "deferred_compensation"      ,
+                "deferred_revenues"          ,
+                "customer_deposits"          ,
+                "other_long_term_liabilities",
+                "pension_provision"          ,
+                "long_term_provisions"       
+            ]   ,
+
+            "cl_equity"                         :   [
+                "common_stock"             ,
+                "preferred_stock"          ,
+                "pd_in_cap_above_par"      ,
+                "pd_in_cap_treasury_stock" ,
+                "revaluation_reserves"     ,
+                "reserves"                 ,
+                "retained_earnings"        ,
+                "accumulated_oci"          ,
+                "minority_interests"       
+            ]   
+
+        },
+
+        "profit_loss" : {
+
+            "cl_revenue"                        : [
+                "operating_revenue"        ,
+                "non_operating_revenue"    ,
+                "excise_stax_levy"         ,
+                "other_income"             
+            ],
+
+            "cl_direct_costs"                   : [
+                "cost_material"            ,
+                "direct_expenses"          
+            ],
+
+            "cl_indirect_costs"                 : [
+                "salaries"                 ,
+                "administrative_expenses"  ,
+                "research_n_development"   ,
+                "other_overheads"          ,
+                "other_operative_expenses" 
+            ],
+
+            "cl_other_expenses"                 : [
+                "other_expenses"           ,
+                "exceptional_items"        
+            ],
+
+            "cl_depreciation_amortization"      : [
+                "depreciation"             ,
+                "amortization"             
+            ],
+
+            "cl_interest"                       : [
+                "pbitx"                    ,
+                "interest"                 
+            ],
+
+            "cl_extraordinary_items"            : [
+                "pbtx"                     ,
+                "extraordinary_items"      ,
+                "prior_years"              
+            ],
+
+            "cl_taxes"                          : [
+                "pbt"                      ,
+                "taxes_current"            ,
+                "taxes_deferred"           ,
+                "pat"                      
+            ],
+
+            "cl_other_comprehensive_income"     : [
+                "gains_losses_forex"         ,
+                "gains_losses_acturial"      ,
+                "gains_losses_sales"         ,
+                "fv_chg_avl_4_sale"          ,
+                "other_deferred_taxes"       ,
+                "other_comprehensive_income" ,
+                "total_comprehensive_income" 
+            ]
+
+        },
+
+        "cash_flow"  : {
+
+            "cl_cash_flow_operations"           : [
+                "chg_inventories"      ,
+                "chg_receivables"      ,
+                "chg_liabilities"      ,
+                "chg_provisions"       ,
+                "cash_flow_operations" 
+            ],
+
+            "cl_cash_flow_investments"          : [
+                "investments_ppe"          ,
+                "investments_cap_devp"     ,
+                "acq_equity_assets"        ,
+                "dis_equity_assets"        ,
+                "dis_ppe"                  ,
+                "chg_investments"          ,
+                "other_cf_investments"     ,
+                "cash_flow_investments"    
+            ],
+
+            "cl_cash_flow_financing"            : [
+                "stock_sales"              ,
+                "stock_repurchase"         ,
+                "debt_issue"               ,
+                "debt_repay"               ,
+                "dividends"                ,
+                "donor_contribution"       ,
+                "cash_flow_financing"      
+            ],    
+
+            "cl_dcf_cash_flows"                 : [
+                "fcff"                 ,
+                "fcfe"                 ,
+                "fcfd"                 
+            ]    
+
+        }
+
+    },
+
+    "cl_shares_outstanding" : [ "shares_outstanding" ]  ,
+
+    "group_class": {
+        "balance_sheet"                     :   1   ,
+        "profit_loss"                       :   2   ,
+        "cash_flow"                         :   3
+    },
+
+    "classes": {
+        "cl_current_assets"                 :   1   ,
+        "cl_inventories"                    :   2   ,
+        "cl_non_current_assets"             :   3   ,
+        "cl_tangible_assets"                :   4   ,
+        "cl_intangible_assets"              :   5   ,
+        "cl_current_liabilities"            :   6   ,
+        "cl_non_current_liabilities"        :   7   ,
+        "cl_equity"                         :   8   ,
+        "cl_revenue"                        :   9   ,
+        "cl_direct_costs"                   :   10  ,
+        "cl_indirect_costs"                 :   11  ,
+        "cl_other_expenses"                 :   12  ,
+        "cl_depreciation_amortization"      :   13  ,
+        "cl_interest"                       :   14  ,
+        "cl_extraordinary_items"            :   15  ,
+        "cl_taxes"                          :   16  ,
+        "cl_other_comprehensive_income"     :   17  ,
+        "cl_cash_flow_operations"           :   18  ,
+        "cl_cash_flow_investments"          :   19  ,
+        "cl_cash_flow_financing"            :   20  ,
+        "cl_dcf_cash_flows"                 :   21  ,
+        "cl_shares_outstanding"             :   22   
+    },
+
+    "types": {
+        "cash"                              : 1     ,
+        "current_receivables"               : 2     ,
+        "current_loans"                     : 3     ,
+        "current_advances"                  : 4     ,
+        "other_current_assets"              : 5     ,
+        "current_investments_BV"            : 6     ,
+        "current_investments_MV"            : 7     ,
+        "raw_materials"                     : 8     ,
+        "work_in_progress"                  : 9     ,
+        "finished_goods"                    : 10    ,
+        "account_receivables"               : 11    ,
+        "long_term_loans"                   : 12    ,
+        "long_term_advances"                : 13    ,
+        "long_term_investments_BV"          : 14    ,
+        "long_term_investments_MV"          : 15    ,
+        "other_long_term_assets"            : 16    ,
+        "plant_property_equipment"          : 17    ,
+        "accumulated_depreciation"          : 18    ,
+        "leasing_rental_assset"             : 19    ,
+        "capital_WIP"                       : 20    ,
+        "other_tangible_assets"             : 21    ,
+        "intangible_assets"                 : 22    ,
+        "intangible_assets_development"     : 23    ,
+        "accumulated_amortization"          : 24    ,
+        "current_payables"                  : 25    ,
+        "current_borrowings"                : 26    ,
+        "current_notes_payable"             : 27    ,
+        "other_current_liabilities"         : 94    ,
+        "interest_payable"                  : 95    ,
+        "current_provisions"                : 28    ,
+        "current_tax_payables"              : 29    ,
+        "liabilities_sale_assets"           : 30    ,
+        "current_leases_liability"          : 31    ,
+        "account_payables"                  : 32    ,
+        "long_term_borrowings"              : 33    ,
+        "bonds_payable"                     : 96    ,
+        "deferred_tax_liabilities"          : 34    ,
+        "long_term_leases_liability"        : 35    ,
+        "deferred_compensation"             : 97    ,
+        "deferred_revenues"                 : 98    ,
+        "customer_deposits"                 : 99    ,
+        "other_long_term_liabilities"       : 36    ,
+        "pension_provision"                 : 37    ,
+        "long_term_provisions"              : 38    ,
+        "common_stock"                      : 39    ,
+        "preferred_stock"                   : 40    ,
+        "pd_in_cap_above_par"               : 41    ,
+        "pd_in_cap_treasury_stock"          : 42    ,
+        "revaluation_reserves"              : 43    ,
+        "reserves"                          : 100   ,
+        "retained_earnings"                 : 101   ,
+        "accumulated_oci"                   : 102   ,
+        "minority_interests"                : 103   ,
+        "operating_revenue"                 : 44    ,
+        "non_operating_revenue"             : 104   ,
+        "excise_stax_levy"                  : 45    ,
+        "other_income"                      : 46    ,
+        "cost_material"                     : 47    ,
+        "direct_expenses"                   : 48    ,
+        "salaries"                          : 49    ,
+        "administrative_expenses"           : 50    ,
+        "research_n_development"            : 51    ,
+        "other_overheads"                   : 52    ,
+        "other_operative_expenses"          : 53    ,
+        "other_expenses"                    : 54    ,
+        "exceptional_items"                 : 107   ,
+        "depreciation"                      : 55    ,
+        "amortization"                      : 56    ,
+        "pbitx"                             : 57    ,
+        "interest"                          : 58    ,
+        "pbtx"                              : 59    ,
+        "extraordinary_items"               : 60    ,
+        "prior_years"                       : 61    ,
+        "pbt"                               : 62    ,
+        "taxes_current"                     : 63   ,
+        "taxes_deferred"                    : 64   ,
+        "pat"                               : 65   ,
+        "gains_losses_forex"                : 66   ,
+        "gains_losses_acturial"             : 67   ,
+        "gains_losses_sales"                : 105   ,
+        "fv_chg_avl_4_sale"                 : 68   ,
+        "other_deferred_taxes"              : 69   ,
+        "other_comprehensive_income"        : 70   ,
+        "total_comprehensive_income"        : 71   ,
+        "chg_inventories"                   : 72   ,
+        "chg_receivables"                   : 73   ,
+        "chg_liabilities"                   : 74   ,
+        "chg_provisions"                    : 75   ,
+        "cash_flow_operations"              : 76   ,
+        "investments_ppe"                   : 77   ,
+        "investments_cap_devp"              : 78   ,
+        "acq_equity_assets"                 : 79   ,
+        "dis_equity_assets"                 : 80   ,
+        "dis_ppe"                           : 81   ,
+        "chg_investments"                   : 82   ,
+        "other_cf_investments"              : 106   ,
+        "cash_flow_investments"             : 83   ,
+        "stock_sales"                       : 84   ,
+        "stock_repurchase"                  : 85   ,
+        "debt_issue"                        : 86   ,
+        "debt_repay"                        : 87   ,
+        "dividends"                         : 88   ,
+        "donor_contribution"                : 89   ,
+        "cash_flow_financing"               : 90   ,
+        "fcff"                              : 91   ,
+        "fcfe"                              : 92   ,
+        "fcfd"                              : 93   ,
+        "shares_outstanding"                : 107   
+    }
+}

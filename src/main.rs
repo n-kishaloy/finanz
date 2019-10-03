@@ -4,10 +4,41 @@ use std::error::Error;
 use util;
 use ndarray::{Array1, ArrayView1, array};
 
+pub trait Dbz {
+    fn write_db(&self);
+    fn read_db(&mut self);
+    fn set_mapz(&mut self) -> ();
+}
+
+// impl Dbz for Mapz {
+
+//     fn write_db(&self)->() {}
+//     fn read_db(&mut self)->() {}
+
+//     fn set_mapz(&mut self)-> () {
+
+//     }
+
+// }
+
+
 
 fn main()->Result<(), Box<dyn Error>> {
 
     use finanz::tval;
+
+    use finanz::Mapz;
+
+    impl Dbz for Mapz {
+
+        fn write_db(&self)->() {}
+        fn read_db(&mut self)->() {}
+
+        fn set_mapz(&mut self)-> () {
+
+        }
+
+    }
 
     let r = 0.08;
     let _y = match tval::irr(array![2.0, 0.5, 0.75, 1.35].view()){
