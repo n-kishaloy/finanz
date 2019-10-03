@@ -185,7 +185,7 @@
 
     },
 
-    "cl_shares_outstanding" : [ "shares_outstanding" ]  ,
+    "cl_others" : [ "shares_outstanding" ]  ,
 
     "group_class": {
         "balance_sheet"                     :   1   ,
@@ -215,7 +215,7 @@
         "cl_cash_flow_investments"          :   19  ,
         "cl_cash_flow_financing"            :   20  ,
         "cl_dcf_cash_flows"                 :   21  ,
-        "cl_shares_outstanding"             :   22   
+        "cl_others"                         :   22   
     },
 
     "types": {
@@ -326,6 +326,6 @@
         "fcff"                              : 91   ,
         "fcfe"                              : 92   ,
         "fcfd"                              : 93   ,
-        "shares_outstanding"                : 107   
+        "shares_outstanding"                : 108   
     }
 }
