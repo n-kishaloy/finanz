@@ -9,8 +9,8 @@
                 "current_loans"            ,
                 "current_advances"         ,
                 "other_current_assets"     ,
-                "current_investments_BV"   ,
-                "current_investments_MV"   
+                "current_investments_bv"   ,
+                "current_investments_mv"   
             ]   ,
 
             "cl_inventories"                    :   [
@@ -23,8 +23,8 @@
                 "account_receivables"      ,
                 "long_term_loans"          ,
                 "long_term_advances"       ,
-                "long_term_investments_BV" ,
-                "long_term_investments_MV" ,
+                "long_term_investments_bv" ,
+                "long_term_investments_mv" ,
                 "other_long_term_assets"   
             ]   ,
 
