@@ -3,6 +3,8 @@ extern crate ndarray;
 use std::error::Error;
 use util;
 use ndarray::{Array1, ArrayView1, array};
+use std::collections::HashMap;
+use finanz::Typez::*;
 
 pub trait Dbz {
     fn write_db(&self);
@@ -55,6 +57,16 @@ fn main()->Result<(), Box<dyn Error>> {
     let xytr:Vec<(&i32, i32)> = vec![1_i32,2,3,4].iter().zip(0_i32..).collect(); 
 
     println!("g_search => {:?}", util::optim::g_search(|x| (x-3.0).powf(2.0), 0.0, 5.0, 1.0e-9)?);
+
+    // let mp = Mapz{  }
+
+    let mut pp:HashMap<finanz::Typez,f64> = HashMap::<finanz::Typez,f64>::new();
+
+    pp.insert(cash, 10.0);
+    pp.insert(others, 3.2);
+    pp.insert(cash, 15.0);
+
+    println!("{:?} ==> {} <<<>>>> {}", pp, *pp.get(&others).unwrap(), others as u16);
 
     Ok(())
 }

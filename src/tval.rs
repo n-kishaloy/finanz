@@ -60,7 +60,6 @@ pub fn npv_t0(mut r:f64,tim:ArrayView1<f64>,cf:ArrayView1<f64>)->f64 {
 
 pub fn npv_n0(mut r:f64,cf:ArrayView1<f64>)->f64 {
     r += 1.0; cf.iter().zip(0..).fold(0.0, |s, (c,i)| s+c/r.powi(i))
-
 } 
 
 pub fn npv_r(mut r:f64)->impl FnMut(ArrayView1<f64>,ArrayView1<f64>,f64)->f64 {

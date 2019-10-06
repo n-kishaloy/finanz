@@ -22,6 +22,15 @@ pub trait Internetz {
     fn set_docz(&mut self);
 }
 
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub enum Typez {
+    cash                              =   1     ,
+    current_receivables               =   4     ,
+    current_loans                     =   3     ,
+    others                            =   2     ,
+
+
+}
 
 pub struct Mapz{
     
@@ -35,6 +44,22 @@ pub struct Mapz{
 }
 
 impl Mapz {
+
+    // pub fn new(&self)-> Self {
+    //     Self {
+    //         // stat_list : ["".to_string();   6],
+    //         // class_list: ["".to_string();  30],
+    //         // types_list: ["".to_string(); 120],
+
+    //         stat_back : HashMap::new(),
+    //         class_back: HashMap::new(),
+    //         types_back: HashMap::new(),
+
+    //         class_stat: [0;  36], stat_class: [vec![];  6],
+    //         type_class:  [0; 120], class_type: [vec![]; 30],
+
+    //     }
+    // }
 
     pub fn read_json(&mut self, fil: String)-> () {}
 
@@ -50,17 +75,29 @@ pub struct Document{
     rf:f64,
     rm:f64,
 
+    records : HashMap<String, f64>  
+
+
 
 }
 
 impl Document {
 
     pub fn export_json(&self) -> Result<String, &'static str>{
-        Err("No implemented yet")
+        Err("Not implemented yet")
     }
 
-    pub fn build_cf(&self) -> () {  }
+    pub fn get(&self, typ:&String) -> Result<f64, &'static str>{
+        Err("Not implemented yet")
+    }
 
+    pub fn set(&self, mz:&Mapz, typ:&String) -> Result<f64, &'static str>{
+        Err("Not implemented yet")
+    }
+
+    pub fn check_balance_sheet(&self) -> bool { false }
+
+    pub fn check_cf(&self) -> bool { false }
 
     pub fn get_debt(&self) -> f64 { 0.0 }
 
