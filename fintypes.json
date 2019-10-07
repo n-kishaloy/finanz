@@ -137,7 +137,7 @@
                 "GainsLossesForex"              ,
                 "GainsLossesActurial"           ,
                 "GainsLossesSales"              ,
-                "FvChgAvl_4Sale"                ,
+                "FvChgAvl4Sale"                 ,
                 "OtherDeferredTaxes"            ,
                 "OtherComprehensiveIncome"      ,
                 "TotalComprehensiveIncome" 
