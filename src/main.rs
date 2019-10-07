@@ -62,11 +62,12 @@ fn main()->Result<(), Box<dyn Error>> {
 
     let mut pp:HashMap<finanz::Typez,f64> = HashMap::<finanz::Typez,f64>::new();
 
-    pp.insert(cash, 10.0);
-    pp.insert(others, 3.2);
-    pp.insert(cash, 15.0);
+    pp.insert(Cash, 10.0);
+    pp.insert(Fcfe, 3.2);
+    pp.insert(Cash, 15.0);
 
-    println!("{:?} ==> {} <<<>>>> {}", pp, *pp.get(&others).unwrap(), others as u16);
+    println!("{:?} ==> {} <<<>>>> {}", pp, *pp.get(&Fcfe).unwrap(), Fcfe as u8);
+    println!("{}", u8::from(Cash));
 
     Ok(())
 }
