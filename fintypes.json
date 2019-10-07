@@ -188,7 +188,7 @@
 
     "ClOthers" : [ "SharesOutstanding" ]  ,
 
-    "groupClass": {
+    "group_class": {
         "BalanceSheet"                      :   1   ,
         "ProfitLoss"                        :   2   ,
         "CashFlow"                          :   3
