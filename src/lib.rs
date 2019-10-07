@@ -6,6 +6,7 @@ use util::{approx};
 use ndarray::{Array1, ArrayView1,array};
 use chrono::prelude::{DateTime, Utc};
 use std::collections::HashMap;
+use std::fmt;
 
 
 pub mod base;
@@ -134,6 +135,10 @@ pub enum Typez {
     Fcfd                                = 93   ,
     SharesOutstanding                   = 108   
 
+}
+
+impl fmt::Display for Typez {
+    fn fmt(&self,f:&mut fmt::Formatter)->fmt::Result { fmt::Debug::fmt(self,f) }
 }
 
 pub struct Mapz{

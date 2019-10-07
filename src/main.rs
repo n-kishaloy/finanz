@@ -67,7 +67,7 @@ fn main()->Result<(), Box<dyn Error>> {
     pp.insert(Cash, 15.0);
 
     println!("{:?} ==> {} <<<>>>> {}", pp, *pp.get(&Fcfe).unwrap(), Fcfe as u8);
-    println!("{}", u8::from(Cash));
+    println!("Cash is {}", Cash.to_string());
 
     Ok(())
 }
