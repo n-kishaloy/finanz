@@ -219,17 +219,6 @@ impl Default for Mapz {
         let mut type_class = HashMap::<Classez, HashSet<Typez>>::new() ;
         let mut class_gr_cl = HashMap::<GrClass, HashSet<Classez>>::new();    
 
-        fn _addtypez(
-            ty: Typez, cl: Classez, 
-            type_map: &mut HashMap<String, Typez>, 
-            type_int: &mut [Typez], 
-            type_class: &mut HashMap<Classez, HashSet<Typez>>, 
-        )->() {
-            type_map.insert(ty.to_string(), ty);
-            type_int[ty as usize] = ty;
-            type_class.get_mut(&cl).unwrap().insert(ty); 
-        }
-
         {
             let mut addgrclass = | gc:GrClass | {
                 gr_class_map.insert(gc.to_string(), gc);
