@@ -5,7 +5,7 @@ extern crate chrono;
 use util::{approx};
 use ndarray::{Array1, ArrayView1,array};
 use chrono::prelude::{DateTime, Utc};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt;
 
 
@@ -137,40 +137,279 @@ pub enum Typez {
 
 }
 
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub enum Classez {
+    ClCurrentAssets                     =   1   ,
+    ClInventories                       =   2   ,
+    ClNonCurrentAssets                  =   3   ,
+    ClTangibleAssets                    =   4   ,
+    ClIntangibleAssets                  =   5   ,
+    ClCurrentLiabilities                =   6   ,
+    ClNonCurrentLiabilities             =   7   ,
+    ClEquity                            =   8   ,
+    ClRevenue                           =   9   ,
+    ClDirectCosts                       =   10  ,
+    ClIndirectCosts                     =   11  ,
+    ClOtherExpenses                     =   12  ,
+    ClDepreciationAmortization          =   13  ,
+    ClInterest                          =   14  ,
+    ClExtraordinaryItems                =   15  ,
+    ClTaxes                             =   16  ,
+    ClOtherComprehensiveIncome          =   17  ,
+    ClCashFlowOperations                =   18  ,
+    ClCashFlowInvestments               =   19  ,
+    ClCashFlowFinancing                 =   20  ,
+    ClDcfCashFlows                      =   21  ,
+    ClOthers                            =   22   
+}
+
+#[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub enum GrClass {
+    BalanceSheet                        =   1   ,
+    ProfitLoss                          =   2   ,
+    CashFlow                            =   3   
+}
+
 impl fmt::Display for Typez {
     fn fmt(&self,f:&mut fmt::Formatter)->fmt::Result { fmt::Debug::fmt(self,f) }
 }
 
+impl fmt::Display for Classez {
+    fn fmt(&self,f:&mut fmt::Formatter)->fmt::Result { fmt::Debug::fmt(self,f) }
+}
+
+impl fmt::Display for GrClass {
+    fn fmt(&self,f:&mut fmt::Formatter)->fmt::Result { fmt::Debug::fmt(self,f) }
+}
+
+
+
+
 pub struct Mapz{
     
-    stat_list: [String; 6], stat_back: HashMap<String, u8>, 
-    class_list: [String; 30], class_back: HashMap<String, u8>,
-    types_list: [String; 120], types_back: HashMap<String, u8>,
+    pub type_map: HashMap<String, Typez>, 
+    pub class_map: HashMap<String, Classez>,
+    pub gr_class_map: HashMap<String, GrClass>,
 
-    class_stat: [u8; 36], stat_class: [Vec<u8>; 6],
-    type_class: [u8; 120], class_type: [Vec<u8>; 30],
+    pub type_int:   [Typez;     128], 
+    pub class_int:  [Classez;    32], 
+    pub gr_class_int: [GrClass;   4],
 
+    pub type_class:  HashMap<Classez, HashSet<Typez>>,
+    pub class_gr_cl: HashMap<GrClass, HashSet<Classez>>
+
+}
+
+impl Default for Mapz {
+    
+    fn default() -> Mapz {
+
+        use crate::Typez::*;
+        use crate::Classez::*;
+        use crate::GrClass::*;
+
+        let mut type_map        = HashMap::<String, Typez>::new();
+        let mut class_map       = HashMap::<String, Classez>::new();
+        let mut gr_class_map    = HashMap::<String, GrClass>::new();
+
+        let mut type_int = [Cash; 128];
+        let mut class_int = [ClCurrentAssets; 32];
+        let mut gr_class_int = [BalanceSheet; 4];
+
+        let mut type_class = HashMap::<Classez, HashSet<Typez>>::new() ;
+        let mut class_gr_cl = HashMap::<GrClass, HashSet<Classez>>::new();    
+
+        fn _addtypez(
+            ty: Typez, cl: Classez, 
+            type_map: &mut HashMap<String, Typez>, 
+            type_int: &mut [Typez], 
+            type_class: &mut HashMap<Classez, HashSet<Typez>>, 
+        )->() {
+            type_map.insert(ty.to_string(), ty);
+            type_int[ty as usize] = ty;
+            type_class.get_mut(&cl).unwrap().insert(ty); 
+        }
+
+        {
+            let mut addgrclass = | gc:GrClass | {
+                gr_class_map.insert(gc.to_string(), gc);
+                gr_class_int[gc as usize] = gc;
+                class_gr_cl.insert(gc, HashSet::<Classez>::new());
+            };
+
+            addgrclass(BalanceSheet); 
+            addgrclass(ProfitLoss); 
+            addgrclass(CashFlow);
+        }
+
+        {
+            class_map.insert(ClOthers.to_string(), ClOthers);
+            class_int[ClOthers as usize] = ClOthers;
+            type_class.insert(ClOthers, HashSet::<Typez>::new());
+
+            let mut addclass = |cl: Classez, gc: GrClass| {
+                class_map.insert(cl.to_string(), cl);
+                class_int[cl as usize] = cl;
+                type_class.insert(cl, HashSet::<Typez>::new());
+                class_gr_cl.get_mut(&gc).unwrap().insert(cl);
+            };
+
+            addclass(ClCurrentAssets, BalanceSheet);
+            addclass(ClInventories, BalanceSheet);
+            addclass(ClNonCurrentAssets, BalanceSheet);
+            addclass(ClTangibleAssets, BalanceSheet);
+            addclass(ClIntangibleAssets, BalanceSheet);
+            addclass(ClCurrentLiabilities, BalanceSheet);
+            addclass(ClNonCurrentLiabilities, BalanceSheet);
+            addclass(ClEquity, BalanceSheet);
+            addclass(ClRevenue, ProfitLoss);
+            addclass(ClDirectCosts, ProfitLoss);
+            addclass(ClIndirectCosts, ProfitLoss);
+            addclass(ClOtherExpenses, ProfitLoss);
+            addclass(ClDepreciationAmortization, ProfitLoss);
+            addclass(ClInterest, ProfitLoss);
+            addclass(ClExtraordinaryItems, ProfitLoss);
+            addclass(ClTaxes, ProfitLoss);
+            addclass(ClOtherComprehensiveIncome, ProfitLoss);
+            addclass(ClCashFlowOperations, CashFlow);
+            addclass(ClCashFlowInvestments, CashFlow);
+            addclass(ClCashFlowFinancing, CashFlow);
+            addclass(ClDcfCashFlows, CashFlow);
+        }
+
+        {
+            let mut addtype = | ty:Typez, cl:Classez | {
+                type_map.insert(ty.to_string(), ty);
+                type_int[ty as usize] = ty;
+                type_class.get_mut(&cl).unwrap().insert(ty); 
+            };
+            addtype(Cash, ClCurrentAssets);
+            addtype(CurrentReceivables, ClCurrentAssets);
+            addtype(CurrentLoans, ClCurrentAssets);
+            addtype(CurrentAdvances, ClCurrentAssets);
+            addtype(OtherCurrentAssets, ClCurrentAssets);
+            addtype(CurrentInvestmentsBv, ClCurrentAssets);
+            addtype(CurrentInvestmentsMv, ClCurrentAssets);
+            addtype(RawMaterials, ClInventories);
+            addtype(WorkInProgress, ClInventories);
+            addtype(FinishedGoods, ClInventories);
+            addtype(AccountReceivables, ClNonCurrentAssets);
+            addtype(LongTermLoans, ClNonCurrentAssets);
+            addtype(LongTermAdvances, ClNonCurrentAssets);
+            addtype(LongTermInvestmentsBv, ClNonCurrentAssets);
+            addtype(LongTermInvestmentsMv, ClNonCurrentAssets);
+            addtype(OtherLongTermAssets, ClNonCurrentAssets);
+            addtype(PlantPropertyEquipment, ClTangibleAssets);
+            addtype(AccumulatedDepreciation, ClTangibleAssets);
+            addtype(LeasingRentalAssset, ClTangibleAssets);
+            addtype(CapitalWip, ClTangibleAssets);
+            addtype(OtherTangibleAssets, ClTangibleAssets);
+            addtype(IntangibleAssets, ClIntangibleAssets);
+            addtype(IntangibleAssetsDevelopment, ClIntangibleAssets);
+            addtype(AccumulatedAmortization, ClIntangibleAssets);
+            addtype(CurrentPayables, ClCurrentLiabilities);
+            addtype(CurrentBorrowings, ClCurrentLiabilities);
+            addtype(CurrentNotesPayable, ClCurrentLiabilities);
+            addtype(OtherCurrentLiabilities, ClCurrentLiabilities);
+            addtype(InterestPayable, ClCurrentLiabilities);
+            addtype(CurrentProvisions, ClCurrentLiabilities);
+            addtype(CurrentTaxPayables, ClCurrentLiabilities);
+            addtype(LiabilitiesSaleAssets, ClCurrentLiabilities);
+            addtype(CurrentLeasesLiability, ClCurrentLiabilities);
+            addtype(AccountPayables, ClNonCurrentLiabilities);
+            addtype(LongTermBorrowings, ClNonCurrentLiabilities);
+            addtype(BondsPayable, ClNonCurrentLiabilities);
+            addtype(DeferredTaxLiabilities, ClNonCurrentLiabilities);
+            addtype(LongTermLeasesLiability, ClNonCurrentLiabilities);
+            addtype(DeferredCompensation, ClNonCurrentLiabilities);
+            addtype(DeferredRevenues, ClNonCurrentLiabilities);
+            addtype(CustomerDeposits, ClNonCurrentLiabilities);
+            addtype(OtherLongTermLiabilities, ClNonCurrentLiabilities);
+            addtype(PensionProvision, ClNonCurrentLiabilities);
+            addtype(LongTermProvisions, ClNonCurrentLiabilities);
+            addtype(CommonStock, ClEquity);
+            addtype(PreferredStock, ClEquity);
+            addtype(PdInCapAbovePar, ClEquity);
+            addtype(PdInCapTreasuryStock, ClEquity);
+            addtype(RevaluationReserves, ClEquity);
+            addtype(Reserves, ClEquity);
+            addtype(RetainedEarnings, ClEquity);
+            addtype(AccumulatedOci, ClEquity);
+            addtype(MinorityInterests, ClEquity);
+            addtype(OperatingRevenue, ClRevenue);
+            addtype(NonOperatingRevenue, ClRevenue);
+            addtype(ExciseStaxLevy, ClRevenue);
+            addtype(OtherIncome, ClRevenue);
+            addtype(CostMaterial, ClDirectCosts);
+            addtype(DirectExpenses, ClDirectCosts);
+            addtype(Salaries, ClIndirectCosts);
+            addtype(AdministrativeExpenses, ClIndirectCosts);
+            addtype(ResearchNDevelopment, ClIndirectCosts);
+            addtype(OtherOverheads, ClIndirectCosts);
+            addtype(OtherOperativeExpenses, ClIndirectCosts);
+            addtype(OtherExpenses, ClOtherExpenses);
+            addtype(ExceptionalItems, ClOtherExpenses);
+            addtype(Pbitdax, ClDepreciationAmortization);
+            addtype(Depreciation, ClDepreciationAmortization);
+            addtype(Amortization, ClDepreciationAmortization);
+            addtype(Pbitx, ClInterest);
+            addtype(Interest, ClInterest);
+            addtype(Pbtx, ClExtraordinaryItems);
+            addtype(ExtraordinaryItems, ClExtraordinaryItems);
+            addtype(PriorYears, ClExtraordinaryItems);
+            addtype(Pbt, ClTaxes);
+            addtype(TaxesCurrent, ClTaxes);
+            addtype(TaxesDeferred, ClTaxes);
+            addtype(Pat, ClTaxes);
+            addtype(GainsLossesForex, ClOtherComprehensiveIncome);
+            addtype(GainsLossesActurial, ClOtherComprehensiveIncome);
+            addtype(GainsLossesSales, ClOtherComprehensiveIncome);
+            addtype(FvChgAvlSale, ClOtherComprehensiveIncome);
+            addtype(OtherDeferredTaxes, ClOtherComprehensiveIncome);
+            addtype(OtherComprehensiveIncome, ClOtherComprehensiveIncome);
+            addtype(TotalComprehensiveIncome, ClOtherComprehensiveIncome);
+            addtype(ChgInventories, ClCashFlowOperations);
+            addtype(ChgReceivables, ClCashFlowOperations);
+            addtype(ChgLiabilities, ClCashFlowOperations);
+            addtype(ChgProvisions, ClCashFlowOperations);
+            addtype(CashFlowOperations, ClCashFlowOperations);
+            addtype(InvestmentsPpe, ClCashFlowInvestments);
+            addtype(InvestmentsCapDevp, ClCashFlowInvestments);
+            addtype(AcqEquityAssets, ClCashFlowInvestments);
+            addtype(DisEquityAssets, ClCashFlowInvestments);
+            addtype(DisPpe, ClCashFlowInvestments);
+            addtype(ChgInvestments, ClCashFlowInvestments);
+            addtype(OtherCfInvestments, ClCashFlowInvestments);
+            addtype(CashFlowInvestments, ClCashFlowInvestments);
+            addtype(StockSales, ClCashFlowFinancing);
+            addtype(StockRepurchase, ClCashFlowFinancing);
+            addtype(DebtIssue, ClCashFlowFinancing);
+            addtype(DebtRepay, ClCashFlowFinancing);
+            addtype(Dividends, ClCashFlowFinancing);
+            addtype(DonorContribution, ClCashFlowFinancing);
+            addtype(CashFlowFinancing, ClCashFlowFinancing);
+            addtype(Fcff, ClDcfCashFlows);
+            addtype(Fcfe, ClDcfCashFlows);
+            addtype(Fcfd, ClDcfCashFlows);
+            addtype(SharesOutstanding, ClOthers);   
+
+        }
+
+        Mapz {
+            type_map, class_map, gr_class_map, 
+            type_int, class_int, gr_class_int,
+            type_class, class_gr_cl,    
+        }
+    }
 }
 
 impl Mapz {
 
-    // pub fn new(&self)-> Self {
-    //     Self {
-    //         // stat_list : ["".to_string();   6],
-    //         // class_list: ["".to_string();  30],
-    //         // types_list: ["".to_string(); 120],
+    pub fn print_json(&self) -> () {}
 
-    //         stat_back : HashMap::new(),
-    //         class_back: HashMap::new(),
-    //         types_back: HashMap::new(),
+    pub fn check_online(&self)-> bool { true }
 
-    //         class_stat: [0;  36], stat_class: [vec![];  6],
-    //         type_class:  [0; 120], class_type: [vec![]; 30],
-
-    //     }
-    // }
-
-    pub fn read_json(&mut self, fil: String)-> () {}
+    pub fn read_online(&mut self)-> () {}
 
 }
 
@@ -248,6 +487,20 @@ impl Company {
     pub fn check_timez(&self) -> bool { false }
 
 
+
+
+}
+
+
+
+
+#[cfg(test)] mod mapz_test {
+    use super::*;
+
+    #[test] fn mapz_online_test() { 
+        let a = Mapz { ..Default::default() } ;
+        assert!(a.check_online()) 
+    }
 
 
 }

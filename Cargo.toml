@@ -11,4 +11,5 @@ edition = "2018"
 util = { git = "https://github.com/n-kishaloy/util" }
 ndarray = { version = "*" }
 ndarray-stats = { version = "*" } 
-chrono = { version = "*", featues = ["serde"] } 
+chrono = { version = "*", featues = ["serde"] }
+reqwest = { version = "*" } 

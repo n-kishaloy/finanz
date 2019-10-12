@@ -1,10 +1,12 @@
 extern crate ndarray;
+extern crate reqwest;
 
 use std::error::Error;
 use util;
 use ndarray::{Array1, ArrayView1, array};
 use std::collections::HashMap;
 use finanz::Typez::*;
+
 
 pub trait Dbz {
     fn write_db(&self);
@@ -28,7 +30,7 @@ pub trait Dbz {
 fn main()->Result<(), Box<dyn Error>> {
 
     use finanz::tval;
-
+    use finanz::Typez;
     use finanz::Mapz;
 
     impl Dbz for Mapz {
@@ -58,9 +60,10 @@ fn main()->Result<(), Box<dyn Error>> {
 
     println!("g_search => {:?}", util::optim::g_search(|x| (x-3.0).powf(2.0), 0.0, 5.0, 1.0e-9)?);
 
-    // let mp = Mapz{  }
+    let mp = Mapz { ..Default::default() };
 
-    let mut pp:HashMap<finanz::Typez,f64> = HashMap::<finanz::Typez,f64>::new();
+
+    let mut pp:HashMap<Typez,f64> = HashMap::<Typez,f64>::new();
 
     pp.insert(Cash, 10.0);
     pp.insert(Fcfe, 3.2);
@@ -68,6 +71,11 @@ fn main()->Result<(), Box<dyn Error>> {
 
     println!("{:?} ==> {} <<<>>>> {}", pp, *pp.get(&Fcfe).unwrap(), Fcfe as u8);
     println!("Cash is {}", Cash.to_string());
+
+    let resp = reqwest::get("https://raw.githubusercontent.com/n-kishaloy/finanz/master/fintypes.json")?.text()?;
+    // println!("{:?}", resp);
+
+
 
     Ok(())
 }
