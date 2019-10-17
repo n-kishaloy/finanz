@@ -62,6 +62,8 @@ fn main()->Result<(), Box<dyn Error>> {
 
     let mp = Mapz { ..Default::default() };
 
+    mp.check_online();
+
 
     let mut pp:HashMap<Typez,f64> = HashMap::<Typez,f64>::new();
 
@@ -72,8 +74,9 @@ fn main()->Result<(), Box<dyn Error>> {
     println!("{:?} ==> {} <<<>>>> {}", pp, *pp.get(&Fcfe).unwrap(), Fcfe as u8);
     println!("Cash is {}", Cash.to_string());
 
-    let resp = reqwest::get("https://raw.githubusercontent.com/n-kishaloy/finanz/master/fintypes.json")?.text()?;
-    // println!("{:?}", resp);
+
+    // let resp = reqwest::get("https://raw.githubusercontent.com/n-kishaloy/finanz/master/fintypes.json")?.text()?;
+    // // println!("{:?}", resp);
 
 
 

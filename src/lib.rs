@@ -1,12 +1,15 @@
 extern crate ndarray;
 extern crate util;
 extern crate chrono;
+extern crate reqwest;
+extern crate serde_json;
 
 use util::{approx};
 use ndarray::{Array1, ArrayView1,array};
 use chrono::prelude::{DateTime, Utc};
 use std::collections::{HashMap, HashSet};
 use std::fmt;
+use serde_json::{Value, Map};
 
 
 pub mod base;
@@ -191,9 +194,9 @@ pub struct Mapz{
     pub class_map: HashMap<String, Classez>,
     pub gr_class_map: HashMap<String, GrClass>,
 
-    pub type_int:   [Typez;     128], 
-    pub class_int:  [Classez;    32], 
-    pub gr_class_int: [GrClass;   4],
+    pub type_int:   [Option<Typez>;     128],  
+    pub class_int:  [Option<Classez>;    32],  
+    pub gr_class_int: [Option<GrClass>;   4],  
 
     pub type_class:  HashMap<Classez, HashSet<Typez>>,
     pub class_gr_cl: HashMap<GrClass, HashSet<Classez>>
@@ -212,9 +215,9 @@ impl Default for Mapz {
         let mut class_map       = HashMap::<String, Classez>::new();
         let mut gr_class_map    = HashMap::<String, GrClass>::new();
 
-        let mut type_int = [Cash; 128];
-        let mut class_int = [ClCurrentAssets; 32];
-        let mut gr_class_int = [BalanceSheet; 4];
+        let mut type_int = [None; 128];
+        let mut class_int = [None; 32];
+        let mut gr_class_int = [None; 4];
 
         let mut type_class = HashMap::<Classez, HashSet<Typez>>::new() ;
         let mut class_gr_cl = HashMap::<GrClass, HashSet<Classez>>::new();    
@@ -222,7 +225,7 @@ impl Default for Mapz {
         {
             let mut addgrclass = | gc:GrClass | {
                 gr_class_map.insert(gc.to_string(), gc);
-                gr_class_int[gc as usize] = gc;
+                gr_class_int[gc as usize] = Some(gc);
                 class_gr_cl.insert(gc, HashSet::<Classez>::new());
             };
 
@@ -233,12 +236,12 @@ impl Default for Mapz {
 
         {
             class_map.insert(ClOthers.to_string(), ClOthers);
-            class_int[ClOthers as usize] = ClOthers;
+            class_int[ClOthers as usize] = Some(ClOthers);
             type_class.insert(ClOthers, HashSet::<Typez>::new());
 
             let mut addclass = |cl: Classez, gc: GrClass| {
                 class_map.insert(cl.to_string(), cl);
-                class_int[cl as usize] = cl;
+                class_int[cl as usize] = Some(cl);
                 type_class.insert(cl, HashSet::<Typez>::new());
                 class_gr_cl.get_mut(&gc).unwrap().insert(cl);
             };
@@ -269,7 +272,7 @@ impl Default for Mapz {
         {
             let mut addtype = | ty:Typez, cl:Classez | {
                 type_map.insert(ty.to_string(), ty);
-                type_int[ty as usize] = ty;
+                type_int[ty as usize] = Some(ty);
                 type_class.get_mut(&cl).unwrap().insert(ty); 
             };
             addtype(Cash, ClCurrentAssets);
@@ -396,7 +399,88 @@ impl Mapz {
 
     pub fn print_json(&self) -> () {}
 
-    pub fn check_online(&self)-> bool { true }
+    pub fn find_group(&self, cl:Classez) -> Result<GrClass, &'static str> {
+        for gr in &self.gr_class_int {
+            if let Some(xg) = gr { 
+                if Some(&cl) == self.class_gr_cl[xg].iter()
+                    .find(|&&clx| clx == cl){ return Ok(*xg) }
+            }
+        }
+        Err("Group class not found")
+    }
+
+    pub fn find_class(&self, ty:Typez) -> Result<Classez, &'static str> {
+        for cl in &self.class_int {
+            if let Some(xg) = cl { 
+                if Some(&ty) == self.type_class[xg].iter()
+                    .find(|&&tx| tx == ty){ return Ok(*xg) }
+            }
+        }
+        Err("Classez not found")
+    }
+
+    pub fn check_online(&self)-> bool { 
+
+        use crate::Typez::*;
+        use crate::Classez::*;
+        use crate::GrClass::*;
+
+        let mapr: Map<String, Value> = 
+            serde_json::from_str(
+                &reqwest::get("https://raw.githubusercontent.com/n-kishaloy/finanz/master/fintypes.json").unwrap().text().unwrap()
+            ).unwrap();
+
+        let typz = &mapr["types"];
+        let clsz = &mapr["classes"];
+
+        let strtpt = &mapr["connection"];
+
+        fn jar2vc(gr_cl:&Value, typ:&str) -> Vec<String> {            
+            let cl_ca = &gr_cl[typ].as_array().unwrap();
+            (0..cl_ca.len()).map(|i| (match &cl_ca[i].clone() { 
+                Value::String(x) => x, _ => "Non" }).to_owned()).collect()
+        }
+
+        let check_class = |cl:Classez|  {
+            let grp = self.find_group(cl).unwrap();
+            let mp=jar2vc(&strtpt[grp.to_string()],&cl.to_string());
+
+            if cl as u8 != clsz[cl.to_string()] { return false }
+            for ty in mp { 
+                if cl != self.find_class(self.type_map[&ty]).unwrap() { return false }
+                if typz[&ty] != (self.type_map[&ty] as u8) { return false }
+
+            }
+
+
+
+            println!("\n");
+
+            true
+        };
+
+        check_class(ClCurrentAssets) &&
+        check_class(ClInventories) &&
+        check_class(ClNonCurrentAssets) &&
+        check_class(ClTangibleAssets) &&
+        check_class(ClIntangibleAssets) &&
+        check_class(ClCurrentLiabilities) &&
+        check_class(ClNonCurrentLiabilities) &&
+        check_class(ClEquity) &&
+        check_class(ClRevenue) &&
+        check_class(ClDirectCosts) &&
+        check_class(ClIndirectCosts) &&
+        check_class(ClOtherExpenses) &&
+        check_class(ClDepreciationAmortization) &&
+        check_class(ClInterest) &&
+        check_class(ClExtraordinaryItems) &&
+        check_class(ClTaxes) &&
+        check_class(ClOtherComprehensiveIncome) &&
+        check_class(ClCashFlowOperations) &&
+        check_class(ClCashFlowInvestments) &&
+        check_class(ClCashFlowFinancing) &&
+        check_class(ClDcfCashFlows) 
+    }
 
     pub fn read_online(&mut self)-> () {}
 
@@ -485,11 +569,34 @@ impl Company {
 
 #[cfg(test)] mod mapz_test {
     use super::*;
+    use crate::Typez::*;
+    use crate::Classez::*;
+    use crate::GrClass::*;
+
 
     #[test] fn mapz_online_test() { 
         let a = Mapz { ..Default::default() } ;
         assert!(a.check_online()) 
     }
 
+    #[test] fn find_class_test() {
+        let a = Mapz { ..Default::default() } ;
+        assert!(a.find_class(Cash)                  == Ok(ClCurrentAssets));
+        assert!(a.find_class(CurrentInvestmentsBv)  == Ok(ClCurrentAssets));
+        assert!(a.find_class(WorkInProgress)        == Ok(ClInventories));
+        assert!(a.find_class(LongTermLoans)         == Ok(ClNonCurrentAssets));
+        assert!(a.find_class(SharesOutstanding)     == Ok(ClOthers));
+    }
+
+    #[test] fn find_group_test() {
+        let a = Mapz { ..Default::default() } ;
+        assert!(a.find_group(ClCurrentAssets)       == Ok(BalanceSheet));
+        assert!(a.find_group(ClCurrentLiabilities)  == Ok(BalanceSheet));
+        assert!(a.find_group(ClRevenue)             == Ok(ProfitLoss));
+        assert!(a.find_group(ClCashFlowOperations)  == Ok(CashFlow));
+        assert!(a.find_group(ClIndirectCosts)       == Ok(ProfitLoss));
+        assert!(a.find_group(ClDcfCashFlows)        == Ok(CashFlow));
+        assert!(a.find_group(ClOthers)        == Err("Group class not found"));
+    }
 
 }
