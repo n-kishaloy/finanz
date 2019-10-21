@@ -419,70 +419,6 @@ impl Mapz {
         Err("Classez not found")
     }
 
-    pub fn check_online(&self)-> bool { 
-
-        use crate::Typez::*;
-        use crate::Classez::*;
-        use crate::GrClass::*;
-
-        let mapr: Map<String, Value> = 
-            serde_json::from_str(
-                &reqwest::get("https://raw.githubusercontent.com/n-kishaloy/finanz/master/fintypes.json").unwrap().text().unwrap()
-            ).unwrap();
-
-        let typz = &mapr["types"];
-        let clsz = &mapr["classes"];
-
-        let strtpt = &mapr["connection"];
-
-        fn jar2vc(gr_cl:&Value, typ:&str) -> Vec<String> {            
-            let cl_ca = &gr_cl[typ].as_array().unwrap();
-            (0..cl_ca.len()).map(|i| (match &cl_ca[i].clone() { 
-                Value::String(x) => x, _ => "Non" }).to_owned()).collect()
-        }
-
-        let check_class = |cl:Classez|  {
-            let grp = self.find_group(cl).unwrap();
-            let mp=jar2vc(&strtpt[grp.to_string()],&cl.to_string());
-
-            if cl as u8 != clsz[cl.to_string()] { return false }
-            for ty in mp { 
-                if cl != self.find_class(self.type_map[&ty]).unwrap() { return false }
-                if typz[&ty] != (self.type_map[&ty] as u8) { return false }
-
-            }
-
-
-
-            println!("\n");
-
-            true
-        };
-
-        check_class(ClCurrentAssets) &&
-        check_class(ClInventories) &&
-        check_class(ClNonCurrentAssets) &&
-        check_class(ClTangibleAssets) &&
-        check_class(ClIntangibleAssets) &&
-        check_class(ClCurrentLiabilities) &&
-        check_class(ClNonCurrentLiabilities) &&
-        check_class(ClEquity) &&
-        check_class(ClRevenue) &&
-        check_class(ClDirectCosts) &&
-        check_class(ClIndirectCosts) &&
-        check_class(ClOtherExpenses) &&
-        check_class(ClDepreciationAmortization) &&
-        check_class(ClInterest) &&
-        check_class(ClExtraordinaryItems) &&
-        check_class(ClTaxes) &&
-        check_class(ClOtherComprehensiveIncome) &&
-        check_class(ClCashFlowOperations) &&
-        check_class(ClCashFlowInvestments) &&
-        check_class(ClCashFlowFinancing) &&
-        check_class(ClDcfCashFlows) 
-    }
-
-    pub fn read_online(&mut self)-> () {}
 
 }
 
@@ -573,10 +509,47 @@ impl Company {
     use crate::Classez::*;
     use crate::GrClass::*;
 
-
-    #[test] fn mapz_online_test() { 
+    #[test] fn online_test(){
         let a = Mapz { ..Default::default() } ;
-        assert!(a.check_online()) 
+
+        let mapr: Map<String, Value> = 
+            serde_json::from_str(
+                &reqwest::get("https://raw.githubusercontent.com/n-kishaloy/finanz/master/fintypes.json").unwrap().text().unwrap()
+            ).unwrap();
+
+        let typz = &mapr["types"];
+        let clsz = &mapr["classes"];
+
+        let strtpt = &mapr["connection"];
+
+        fn jar2vc(gr_cl:&Value, typ:&str) -> Vec<String> {            
+            let cl_ca = &gr_cl[typ].as_array().unwrap();
+            (0..cl_ca.len()).map(|i| (match &cl_ca[i].clone() { 
+                Value::String(x) => x, _ => "Non" }).to_owned()).collect()
+        }
+
+        let check_class = |cl:Classez|  {
+            let grp = a.find_group(cl).unwrap();
+            let mp=jar2vc(&strtpt[grp.to_string()],&cl.to_string());
+
+            if cl as u8 != clsz[cl.to_string()] { return false }
+            for ty in mp { 
+                if cl != a.find_class(a.type_map[&ty]).unwrap() { return false }
+                if typz[&ty] != (a.type_map[&ty] as u8) { return false }
+            }
+            true
+        };
+
+        assert!(
+            a.class_int.iter().fold(true,|x, y| x && match *y { 
+                None | Some(ClOthers) => true, _ => check_class(y.unwrap()) 
+            }) &&
+
+            a.type_int.iter().fold(true, |x,y| x && 
+                if let Some(ty) = y { typz[ty.to_string()] == (*ty as u8) } 
+                else { true }
+            )
+        );
     }
 
     #[test] fn find_class_test() {

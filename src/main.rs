@@ -1,11 +1,18 @@
 extern crate ndarray;
 extern crate reqwest;
+extern crate serde_json;
+
 
 use std::error::Error;
 use util;
 use ndarray::{Array1, ArrayView1, array};
-use std::collections::HashMap;
-use finanz::Typez::*;
+use std::collections::{HashMap, HashSet};
+use std::fmt;
+use serde_json::{Value, Map};
+
+
+
+
 
 
 pub trait Dbz {
@@ -30,8 +37,16 @@ pub trait Dbz {
 fn main()->Result<(), Box<dyn Error>> {
 
     use finanz::tval;
-    use finanz::Typez;
     use finanz::Mapz;
+
+    use finanz::Typez;
+    use finanz::Classez;
+    use finanz::GrClass;
+
+    use finanz::Typez::*;
+    use finanz::Classez::*;
+    use finanz::GrClass::*;
+
 
     impl Dbz for Mapz {
 
@@ -60,10 +75,7 @@ fn main()->Result<(), Box<dyn Error>> {
 
     println!("g_search => {:?}", util::optim::g_search(|x| (x-3.0).powf(2.0), 0.0, 5.0, 1.0e-9)?);
 
-    let mp = Mapz { ..Default::default() };
-
-    mp.check_online();
-
+    let a = Mapz { ..Default::default() };
 
     let mut pp:HashMap<Typez,f64> = HashMap::<Typez,f64>::new();
 
@@ -74,9 +86,6 @@ fn main()->Result<(), Box<dyn Error>> {
     println!("{:?} ==> {} <<<>>>> {}", pp, *pp.get(&Fcfe).unwrap(), Fcfe as u8);
     println!("Cash is {}", Cash.to_string());
 
-
-    // let resp = reqwest::get("https://raw.githubusercontent.com/n-kishaloy/finanz/master/fintypes.json")?.text()?;
-    // // println!("{:?}", resp);
 
 
 
