@@ -26,6 +26,11 @@ pub trait Internetz {
     fn set_docz(&mut self);
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum JEntry {
+    Debit(f64), Credit(f64)
+}
+
 #[repr(u8)] #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum Typez {
     Cash                                = 1     ,
@@ -432,7 +437,7 @@ pub struct Document{
     rf:f64,
     rm:f64,
 
-    records : HashMap<String, f64>  
+    records : HashMap<Typez, Option<f64>>  
 
 
 

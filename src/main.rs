@@ -46,6 +46,7 @@ fn main()->Result<(), Box<dyn Error>> {
     use finanz::Typez::*;
     use finanz::Classez::*;
     use finanz::GrClass::*;
+    use finanz::JEntry::*;
 
 
     impl Dbz for Mapz {
